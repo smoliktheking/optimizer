@@ -34,13 +34,37 @@ $form.Controls.Add($noButton)
 $result = $form.ShowDialog()
 
 if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
-    Write-Host "Installing tweaks..." -ForegroundColor Green
-    
-    # כאן תכניס את כל הפקודות של הטיפולים שלך (ביטול Telemetry, ניקוי זמניים וכו')
-    # דוגמה:
+    Write-Host "Installing essential tweaks..." -ForegroundColor Green
+
+    # 1. Activity History - Disable
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Value 0 -ErrorAction SilentlyContinue
+
+    # 2. ConsumerFeatures - Disable
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Value 0 -ErrorAction SilentlyContinue
+
+    # 3. Delivery Optimization - Disable
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 0 -ErrorAction SilentlyContinue
+
+    # 4. End Task With Right Click - Enable
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDeveloperSettings" -Value 1 -ErrorAction SilentlyContinue
+
+    # 5. File Explorer Automatic Folder Discovery - Disable
+    Remove-Item -Path "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell" -Recurse -Force -ErrorAction SilentlyContinue
+
+    # 6. Location Tracking - Disable
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Deny" -ErrorAction SilentlyContinue
+
+    # 7. Restore Point - Create
+    Checkpoint-Computer -Description "FPS Optimizer Restore Point" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
+
+    # 8. Telemetry - Disable
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -ErrorAction SilentlyContinue
+
+    # 9. Temporary Files - Remove
     Remove-Item -Path "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
-    
-    [System.Windows.Forms.MessageBox]::Show("Tweaks installed successfully!", "Done", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
+    Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    [System.Windows.Forms.MessageBox]::Show("Essential tweaks installed successfully!", "Done", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
 } else {
     Write-Host "Installation cancelled." -ForegroundColor Yellow
 }
