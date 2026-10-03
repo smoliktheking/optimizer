@@ -1,6 +1,17 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+Clear-Host
+Write-Host @"
+    ___                                 _       _                  
+   / __)                               _  (_)     (_)                 
+ __| |__ ____   ___     ___   ____ _| |_ _ ____  _ _____ _____   ____ 
+(_   __) _ \ /___)   / _ \ _ _ (_   _) |    \ | (___  ) ___ |/ ___)
+  | |  | |_| |___ |  | |_| | |_| || |_| | | | | |/ __/| ____| |    
+  |_|  |  __/(___/    \___/|  __/  \__)_|_|_|_|_(_____)_____)_|    
+       |_|                 |_|                                     
+"@ -ForegroundColor Cyan
+
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "FPS Optimizer"
 $form.Size = New-Object System.Drawing.Size(350,200)
@@ -36,31 +47,14 @@ $result = $form.ShowDialog()
 if ($result -eq [System.Windows.Forms.DialogResult]::Yes) {
     Write-Host "Installing essential tweaks..." -ForegroundColor Green
 
-    # 1. Activity History - Disable
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Value 0 -ErrorAction SilentlyContinue
-
-    # 2. ConsumerFeatures - Disable
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Value 0 -ErrorAction SilentlyContinue
-
-    # 3. Delivery Optimization - Disable
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -Name "DODownloadMode" -Value 0 -ErrorAction SilentlyContinue
-
-    # 4. End Task With Right Click - Enable
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDeveloperSettings" -Value 1 -ErrorAction SilentlyContinue
-
-    # 5. File Explorer Automatic Folder Discovery - Disable
     Remove-Item -Path "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell" -Recurse -Force -ErrorAction SilentlyContinue
-
-    # 6. Location Tracking - Disable
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Deny" -ErrorAction SilentlyContinue
-
-    # 7. Restore Point - Create
     Checkpoint-Computer -Description "FPS Optimizer Restore Point" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
-
-    # 8. Telemetry - Disable
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -ErrorAction SilentlyContinue
-
-    # 9. Temporary Files - Remove
     Remove-Item -Path "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
 
